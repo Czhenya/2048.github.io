@@ -140,17 +140,25 @@ function copyLogs() {
             .getUserMedia(constraints)
             .then(function(stream) {
               console.log("视频2");
-                cameraStream = stream;
-                // 旧的浏览器可能没有 srcObject
-                if ("srcObject" in video) {
+                 var video = document.createElement('video');
                     video.srcObject = stream;
-                } else {
-                    // 防止在新的浏览器里使用它，应为它已经不再支持了
-                    video.src = window.URL.createObjectURL(stream);
-                }
-                video.onloadedmetadata = function(e) {
                     video.play();
-                };
+
+                    // 创建一个canvas来绘制视频
+                    var canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var context = canvas.getContext('2d');
+
+                    function draw() {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        // 将canvas图像数据发送给Unity
+                        var imageDataURL = canvas.toDataURL('image/png');
+                        gameInstance.SendMessage('YourGameObjectName', 'ReceiveImageData', imageDataURL);
+                        requestAnimationFrame(draw);
+                    }
+
+                    draw();
             })
             .catch(function(err) {
               console.log("视频3");
