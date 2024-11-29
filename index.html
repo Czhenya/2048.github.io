@@ -120,6 +120,7 @@
         }).then((unityInstance) => {
           loadingBar.style.display = "none";
           fullscreenButton.onclick = () => {
+            console.log("******************");
             unityInstance.SetFullscreen(1);
           };
         }).catch((message) => {
