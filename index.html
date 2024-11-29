@@ -24,14 +24,38 @@
       </div>
     </div>
         <div id="log"></div>
-    <button onclick="logMessage()">打印日志</button>
+    <button onclick="displayLogs()">打印日志</button>
     <script>
+// 创建一个数组来保存日志信息
+      const logMessages = [];
+
+// 重写console.log以捕获日志信息
+const originalConsoleLog = console.log;
+console.log = function(message) {
+    logMessages.push(message); // 保存到数组
+    originalConsoleLog.apply(console, arguments); // 仍然调用原始console.log
+    displayLogs(); // 更新视图
+};
+
+// 打印日志信息的函数
 function logMessage() {
-            const logDiv = document.getElementById('log');
-            const message = "这是一条新的日志消息: " + new Date().toLocaleTimeString();
-            logDiv.innerHTML += message + "<br>"; // 将新消息添加到日志中
-            console.log(message); // 同时打印到控制台
-        }
+    console.log("新的日志信息: " + new Date().toLocaleTimeString());
+}
+
+// 显示日志信息
+function displayLogs() {
+    const logDiv = document.getElementById('log');
+    logDiv.innerHTML = ''; // 清空当前日志显示
+    logMessages.forEach(msg => {
+        logDiv.innerHTML += msg + '<br>'; // 将每条日志添加到视图中
+    });
+}
+
+// 清除日志信息
+function clearLogs() {
+    logMessages.length = 0; // 清空日志数组
+    displayLogs(); // 更新视图
+}
       
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
