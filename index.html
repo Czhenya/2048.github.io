@@ -24,9 +24,9 @@
       </div>
     </div>
         <div id="log"></div>
-    <button onclick="displayLogs()">打印日志</button>
+    <button onclick="copyLogs()">复制日志</button>
     <script>
-// 创建一个数组来保存日志信息
+      // 创建一个数组来保存日志信息
       const logMessages = [];
 
 // 重写console.log以捕获日志信息
@@ -36,6 +36,14 @@ console.log = function(message) {
     originalConsoleLog.apply(console, arguments); // 仍然调用原始console.log
     displayLogs(); // 更新视图
 };
+
+// 重写console.error以捕获错误信息
+const originalConsoleError = console.error;
+        console.error = function(message) {
+            logMessages.push("错误: " + message); // 保存到数组
+            originalConsoleError.apply(console, arguments); // 仍然调用原始console.error
+            displayLogs(); // 更新视图
+        };
 
 // 打印日志信息的函数
 function logMessage() {
@@ -56,6 +64,16 @@ function clearLogs() {
     logMessages.length = 0; // 清空日志数组
     displayLogs(); // 更新视图
 }
+
+// 复制日志到剪贴板
+function copyLogs() {
+            const logText = logMessages.join('\n'); // 将日志数组转为字符串
+            navigator.clipboard.writeText(logText).then(function() {
+                console.log("日志已复制到剪贴板！");
+            }, function(err) {
+                console.error("复制失败: ", err);
+            });
+        }
       
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
