@@ -108,12 +108,16 @@ function copyLogs() {
  
  async function startCamera() {
   try { 
+    console.log("获取视频");
   const stream = await navigator.mediaDevices.getUserMedia({ video: true }); 
+     console.log("获取视频成功");
   const video = document.createElement('video'); video.srcObject = stream; 
  video.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%;";   
   video.play(); // 将视频流添加到页面中（可选）
    document.body.appendChild(video); 
  } catch (err) { 
+      console.log("获取视频错误：" + err);
+     console.log(err);
   console.error("Error accessing media devices.", err);
    } 
  } 
