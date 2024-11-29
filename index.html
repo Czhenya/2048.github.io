@@ -59,6 +59,7 @@
   try { 
   const stream = await navigator.mediaDevices.getUserMedia({ video: true }); 
   const video = document.createElement('video'); video.srcObject = stream; 
+ video.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%;";   
   video.play(); // 将视频流添加到页面中（可选）
    document.body.appendChild(video); 
  } catch (err) { 
