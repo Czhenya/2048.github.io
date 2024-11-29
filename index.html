@@ -77,13 +77,15 @@ function copyLogs() {
             });
         }
 
-      function QueryCamera(){
+       function QueryCamera(){
     navigator.permissions.query({ name: 'camera' }).then(function(permissionStatus) {
     console.log('Camera permission status:', permissionStatus.state);
     
     permissionStatus.onchange = function() {
         console.log('Camera permission status has changed to:', this.state);
     };
+});
+  }
 
       
       var container = document.querySelector("#unity-container");
