@@ -119,8 +119,8 @@
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
           loadingBar.style.display = "none";
+           console.log("******************");
           fullscreenButton.onclick = () => {
-            console.log("******************");
             unityInstance.SetFullscreen(1);
           };
         }).catch((message) => {
