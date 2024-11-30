@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | WebCamera</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+</head>
+<body>
+<div id="unity-container" class="unity-desktop">
+  <canvas id="unity-canvas" width=960 height=600></canvas>
+  <div id="unity-loading-bar">
+    <div id="unity-logo"></div>
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full"></div>
+    </div>
+  </div>
+  <div id="unity-warning"> </div>
+  <div id="unity-footer">
+    <div id="unity-webgl-logo"></div>
+    <div id="unity-fullscreen-button"></div>
+    <div id="unity-build-title">WebCamera</div>
+  </div>
+</div>
+<div id="log"></div>
+<button onclick="QueryCamera()">权限</button>
+<button onclick="startCamera()">摄像机</button>
+<web-view allow='camera' src="" ></web-view>
+<script>
+  // 创建一个数组来保存日志信息
+  const logMessages = [];
+
+  // 重写console.log以捕获日志信息
+  const originalConsoleLog = console.log;
+  console.log = function(message) {
+    logMessages.push(message); // 保存到数组
+    originalConsoleLog.apply(console, arguments); // 仍然调用原始console.log
+    displayLogs(); // 更新视图
+  };
+
+  // 重写console.error以捕获错误信息
+  const originalConsoleError = console.error;
+  console.error = function(message) {
+    logMessages.push("错误: " + message); // 保存到数组
+    originalConsoleError.apply(console, arguments); // 仍然调用原始console.error
+    displayLogs(); // 更新视图
+  };
+
+  // 打印日志信息的函数
+  function logMessage() {
+    console.log("新的日志信息: " + new Date().toLocaleTimeString());
+  }
+
+  // 显示日志信息
+  function displayLogs() {
+    const logDiv = document.getElementById('log');
+    logDiv.innerHTML = ''; // 清空当前日志显示
+    logMessages.forEach(msg => {
+      logDiv.innerHTML += msg + '<br>'; // 将每条日志添加到视图中
+    });
+  }
+
+  // 清除日志信息
+  function clearLogs() {
+    logMessages.length = 0; // 清空日志数组
+    displayLogs(); // 更新视图
+  }
+
+  // 复制日志到剪贴板
+  function copyLogs() {
+    const logText = logMessages.join('\n'); // 将日志数组转为字符串
+    navigator.clipboard.writeText(logText).then(function() {
+      console.log("日志已复制到剪贴板！");
+    }, function(err) {
+      console.error("复制失败: ", err);
+    });
+  }
+
+  function QueryCamera(){
+    navigator.permissions.query({ name: 'camera' }).then(function(permissionStatus) {
+      console.log('Camera permission status:', permissionStatus.state);
+
+      permissionStatus.onchange = function() {
+        console.log('Camera permission status has changed to:', this.state);
+      };
+    });
+  }
+
+
+  var container = document.querySelector("#unity-container");
+  var canvas = document.querySelector("#unity-canvas");
+  var loadingBar = document.querySelector("#unity-loading-bar");
+  var progressBarFull = document.querySelector("#unity-progress-bar-full");
+  var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+  var warningBanner = document.querySelector("#unity-warning");
+
+  // Shows a temporary message banner/ribbon for a few seconds, or
+  // a permanent error message on top of the canvas if type=='error'.
+  // If type=='warning', a yellow highlight color is used.
+  // Modify or remove this function to customize the visually presented
+  // way that non-critical warnings and error messages are presented to the
+  // user.
+  function unityShowBanner(msg, type) {
+    function updateBannerVisibility() {
+      warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+    }
+    var div = document.createElement('div');
+    div.innerHTML = msg;
+    warningBanner.appendChild(div);
+    if (type == 'error') div.style = 'background: red; padding: 10px;';
+    else {
+      if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+      setTimeout(function() {
+        warningBanner.removeChild(div);
+        updateBannerVisibility();
+      }, 5000);
+    }
+    updateBannerVisibility();
+  }
+
+  async function startCamera() {
+    console.log("视频");
+    const video = document.createElement("video");
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    var constWidth = 400;
+    var constHeight = 400;
+    let hasCameraAuth = false;
+    var constraints = {
+      audio: false,
+      video: {
+        facingMode: 'user',
+        width: constWidth,
+        height: constHeight,
+      }
+    };
+    navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(function(stream) {
+              console.log("视频2");
+              var video = document.createElement('video');
+              video.srcObject = stream;
+              video.play();
+
+              // 创建一个canvas来绘制视频
+              var canvas = document.createElement('canvas');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              var context = canvas.getContext('2d');
+
+              function draw() {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                // 将canvas图像数据发送给Unity
+                var imageDataURL = canvas.toDataURL('image/png');
+                gameInstance.SendMessage('YourGameObjectName', 'ReceiveImageData', imageDataURL);
+                requestAnimationFrame(draw);
+              }
+
+              draw();
+            })
+            .catch(function(err) {
+              console.log("视频3");
+              console.log(err.name + ": " + err.message);
+            });
+  }
+  var buildUrl = "Build";
+  var loaderUrl = buildUrl + "/WevCamera.loader.js";
+  var config = {
+    dataUrl: buildUrl + "/WevCamera.data",
+    frameworkUrl: buildUrl + "/WevCamera.framework.js",
+    codeUrl: buildUrl + "/WevCamera.wasm",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "DefaultCompany",
+    productName: "WebCamera",
+    productVersion: "0.1",
+    showBanner: unityShowBanner,
+  };
+
+  // By default Unity keeps WebGL canvas render target size matched with
+  // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+  // Set this to false if you want to decouple this synchronization from
+  // happening inside the engine, and you would instead like to size up
+  // the canvas DOM size and WebGL render target sizes yourself.
+  // config.matchWebGLToCanvasSize = false;
+
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    // Mobile device style: fill the whole browser client area with the game canvas:
+
+    var meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    container.className = "unity-mobile";
+
+    // To lower canvas resolution on mobile devices to gain some
+    // performance, uncomment the following line:
+    // config.devicePixelRatio = 1;
+
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+
+    unityShowBanner('WebGL builds are not supported on mobile devices.');
+  } else {
+    // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+
+    canvas.style.width = "960px";
+    canvas.style.height = "600px";
+  }
+
+  loadingBar.style.display = "block";
+
+  var script = document.createElement("script");
+  script.src = loaderUrl;
+  script.onload = () => {
+    createUnityInstance(canvas, config, (progress) => {
+      progressBarFull.style.width = 100 * progress + "%";
+    }).then((unityInstance) => {
+      loadingBar.style.display = "none";
+      console.log("******************");
+      fullscreenButton.onclick = () => {
+        unityInstance.SetFullscreen(1);
+      };
+    }).catch((message) => {
+      alert(message);
+    });
+  };
+  document.body.appendChild(script);
+</script>
+</body>
+</html>
