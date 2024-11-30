@@ -138,7 +138,7 @@ async function startCamera() {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     var context = canvas.getContext('2d');
-
+                    console.log("视频大小：" + video.videoWidth + "    " + video.videoHeight);
                     function draw() {
                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
                         // 将canvas图像数据发送给Unity
