@@ -143,7 +143,7 @@ async function startCamera() {
                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
                         // 将canvas图像数据发送给Unity
                         var imageDataURL = canvas.toDataURL('image/png');
-                        gameInstance.SendMessage('YourGameObjectName', 'ReceiveImageData', imageDataURL);
+                        gameInstance.SendMessage('RawImage', 'ReceiveImageData', imageDataURL);
                         requestAnimationFrame(draw);
                     }
 
