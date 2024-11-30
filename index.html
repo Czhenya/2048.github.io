@@ -132,7 +132,7 @@ async function startCamera() {
                  var video = document.createElement('video');
                     video.srcObject = stream;
                     video.play();
-
+document.body.appendChild(video);
                     // 创建一个canvas来绘制视频
                     var canvas = document.createElement('canvas');
                     canvas.width = video.videoWidth;
