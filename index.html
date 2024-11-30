@@ -156,7 +156,9 @@ document.body.appendChild(video);
             });
   }
 
-      
+      function updateVideoFrame(base64Image) {
+          gameInstance.SendMessage('RawImage', 'ReceiveImageData', base64Image);
+        }
 
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/Build.loader.js";
