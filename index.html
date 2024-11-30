@@ -132,6 +132,7 @@ async function startCamera() {
                  var video = document.createElement('video');
                     video.srcObject = stream;
                     video.play();
+              video.style = "max-width: 500px; height: 500px;transform: translate(0%,-0%);position:fixed;";
 document.body.appendChild(video);
                     // 创建一个canvas来绘制视频
                     var canvas = document.createElement('canvas');
@@ -147,7 +148,7 @@ document.body.appendChild(video);
                         requestAnimationFrame(draw);
                     }
 
-                    draw();
+                    // draw();
             })
             .catch(function(err) {
               console.log("视频3");
